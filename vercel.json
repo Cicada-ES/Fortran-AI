@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "AI.js", "use": "@vercel/node" },
+    { "src": "public/**/*", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/_vercel/insights/(.*)", "dest": "/_vercel/insights/$1" },
+    { "src": "/_vercel/speed-insights/(.*)", "dest": "/_vercel/speed-insights/$1" },
+    { "src": "/favicon\\.ico", "dest": "/public/favicon.ico" },
+    { "src": "/favicon-ii\\.ico", "dest": "/public/favicon-ii.ico" },
+    { "src": "/manifest\\.json", "dest": "/public/manifest.json" },
+    { "src": "/", "dest": "/public/Fortran.html" },
+    { "src": "/Console", "dest": "/public/Console.html" },
+    { "src": "/chat", "methods": ["POST"], "dest": "/AI.js" },
+    { "src": "/image", "methods": ["POST"], "dest": "/AI.js" },
+    { "src": "/images/(.*)", "dest": "/AI.js" },
+    { "src": "/api/(.*)", "dest": "/AI.js" }
+  ]
+}

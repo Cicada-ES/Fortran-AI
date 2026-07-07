@@ -1,0 +1,23 @@
+{
+  "name": "fortran-ai",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "AI.js",
+  "scripts": {
+    "start": "node AI.js"
+  },
+  "author": "Kn3ghtfall",
+  "license": "UNLICENSED",
+  "description": "What you're seeing is Advanced Warfare",
+  "dependencies": {
+    "tiktoken": "^1.0.22",
+    "axios": "^1.18.1",
+    "connect-redis": "^9.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "redis": "^6.1.0",
+    "wikipedia": "^2.1.2"
+  }
+}

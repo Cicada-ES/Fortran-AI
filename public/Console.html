@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fortran AI Console</title>
+  <link rel="icon" type="image/x-icon" sizes="192x192" href="/favicon.ico" />
+  <link rel="icon" type="image/x-icon" sizes="512x512" href="/favicon-ii.ico" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Audiowide&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --bg-dark: #080a0e;
+  --panel: #0a0c12;
+  --accent: #2c8cff;
+  --accent-glow: rgba(44, 140, 255, 0.12);
+  --accent-glow-strong: rgba(44, 140, 255, 0.3);
+  --danger: #5c1111;
+  --success-dark: #02342a;
+  --success-hover: #095b41;
+  --border: #121820;
+  --input-bg: rgba(15, 21, 30, 0.75);
+  --text-light: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--panel);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-dark);
+  color: var(--text-light);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+  overflow: hidden;
+}
+
+header {
+  background: var(--panel);
+  padding: 1rem 2rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(44, 140, 255, 0.15);
+  letter-spacing: 3px;
+  user-select: none;
+  color: #fff;
+  text-shadow:
+    0 0 10px rgba(44, 140, 255, 0.8),
+    0 0 30px rgba(44, 140, 255, 0.4),
+    0 0 60px rgba(44, 140, 255, 0.2);
+  position: relative;
+}
+
+header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation: headerLine 3s ease-in-out infinite;
+}
+
+@keyframes headerLine {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.main {
+  display: flex;
+  height: calc(100vh - 64px);
+}
+
+.sidebar {
+  width: 260px;
+  background: rgba(5, 7, 13, 0.9);
+  padding: 0.5rem 0 0;
+  border-right: 1px solid rgba(44, 140, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  box-shadow: inset -1px 0 20px rgba(44, 140, 255, 0.05);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.sidebar-footer {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid rgba(44, 140, 255, 0.08);
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  color: rgba(44, 140, 255, 0.8);
+  text-transform: uppercase;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sf-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+  margin-right: 0.5rem;
+  animation: blinkDot 2s ease-in-out infinite;
+}
+
+.sidebar h3 {
+  color: rgba(255,255,255,0.35);
+  margin: 0.75rem 1.5rem 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  font-size: 0.6rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(44, 140, 255, 0.1);
+}
+
+.sidebar button {
+  background: none;
+  border: none;
+  border-left: 2px solid transparent;
+  color: rgba(255,255,255,0.35);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.68rem;
+  padding: 0.9rem 1.5rem;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: all 0.25s ease;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  user-select: none;
+  position: relative;
+}
+
+.sidebar button::after {
+  content: '';
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: transparent;
+  transition: all 0.25s ease;
+}
+
+.sidebar button:hover {
+  color: rgba(255,255,255,0.8);
+  background: rgba(44, 140, 255, 0.06);
+  border-left-color: rgba(44, 140, 255, 0.4);
+}
+
+.sidebar button:hover::after {
+  background: rgba(44, 140, 255, 0.5);
+}
+
+.sidebar button.active {
+  color: #fff;
+  border-left-color: var(--accent);
+  background: rgba(44, 140, 255, 0.1);
+  text-shadow: 0 0 12px rgba(44, 140, 255, 0.6);
+  font-weight: 700;
+}
+
+.sidebar button.active::after {
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+.tab-content {
+  flex-grow: 1;
+  padding: 2rem 3rem;
+  display: none;
+  overflow-y: auto;
+  user-select: text;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--panel);
+  color: var(--text-light);
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.card {
+  background: rgba(5, 7, 13, 0.8);
+  padding: 2rem;
+  border-radius: 4px;
+  box-shadow:
+    0 0 40px rgba(0, 0, 0, 0.6),
+    inset 0 0 30px rgba(44, 140, 255, 0.04);
+  border: 1px solid rgba(44, 140, 255, 0.12);
+  margin-bottom: 2.5rem;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--text-light);
+  user-select: text;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(44, 140, 255, 0.4), transparent);
+}
+
+.card:hover {
+  border-color: rgba(44, 140, 255, 0.25);
+  box-shadow:
+    0 0 50px rgba(0, 0, 0, 0.6),
+    0 0 30px rgba(44, 140, 255, 0.08),
+    inset 0 0 30px rgba(44, 140, 255, 0.06);
+}
+
+h2 {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  color: rgba(255,255,255,0.9);
+  user-select: none;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px rgba(44, 140, 255, 0.6);
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(44, 140, 255, 0.12);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+}
+
+/* ── unified font for all data display ── */
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 340px;
+  overflow-y: auto;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  padding-right: 0.5rem;
+  user-select: text;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--panel);
+  background: transparent;
+  color: var(--text-light);
+  margin-bottom: 0.5rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 400;
+}
+
+.chat-log {
+  max-height: 340px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--panel);
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.chat-entry {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 400;
+  color: var(--text-light);
+}
+
+.chat-entry.image-result img {
+  max-width: 220px;
+  border-radius: 4px;
+  border: 1px solid rgba(44, 140, 255, 0.25);
+  display: block;
+  margin-top: 0.3rem;
+  background: transparent;
+  color: transparent;
+}
+
+.clear-btn {
+  margin-top: 1rem;
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 2px;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 0.6rem 1.2rem;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.clear-btn:hover {
+  background: rgba(220, 38, 38, 0.18);
+  border-color: rgba(220, 38, 38, 0.6);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(220, 38, 38, 0.15);
+}
+
+#auth {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(4, 6, 10, 0.98);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  user-select: none;
+  overflow: hidden;
+}
+
+#auth::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(44, 140, 255, 0.018) 2px,
+    rgba(44, 140, 255, 0.018) 4px
+  );
+  pointer-events: none;
+  animation: scanMove 12s linear infinite;
+}
+
+@keyframes scanMove {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(100px); }
+}
+
+#auth::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 700px;
+  height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(44, 140, 255, 0.05) 0%, transparent 65%);
+  pointer-events: none;
+  animation: ambientPulse 5s ease-in-out infinite;
+}
+
+@keyframes ambientPulse {
+  0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.12); }
+}
+
+#auth .auth-box {
+  background: rgba(5, 7, 13, 0.96);
+  border-radius: 3px;
+  padding: 3rem 3.5rem 3.5rem;
+  max-width: 460px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  border: 1px solid rgba(44, 140, 255, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(44, 140, 255, 0.08),
+    0 0 80px rgba(44, 140, 255, 0.12),
+    inset 0 0 50px rgba(44, 140, 255, 0.04);
+  transition: box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+#auth .auth-box::after {
+  content: '';
+  position: absolute;
+  top: -1px; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--accent) 50%, transparent 100%);
+  animation: topGlow 3s ease-in-out infinite;
+}
+
+@keyframes topGlow {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.9; }
+}
+
+#auth.error .auth-box {
+  border-color: rgba(220, 38, 38, 0.5);
+  box-shadow:
+    0 0 0 1px rgba(220, 38, 38, 0.15),
+    0 0 80px rgba(220, 38, 38, 0.2),
+    inset 0 0 50px rgba(220, 38, 38, 0.06);
+}
+
+.auth-classification {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.58rem;
+  letter-spacing: 3px;
+  color: rgba(44, 140, 255, 0.9);
+  border: 1px solid rgba(44, 140, 255, 0.45);
+  padding: 0.3rem 1rem;
+  border-radius: 2px;
+  margin-bottom: 2rem;
+  text-transform: uppercase;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 600;
+}
+
+.auth-classification::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+  animation: blinkDot 2s ease-in-out infinite;
+}
+
+@keyframes blinkDot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+#auth h1 {
+  font-size: 1.85rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  user-select: none;
+  letter-spacing: 5px;
+  color: #fff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  text-shadow:
+    0 0 15px rgba(44, 140, 255, 0.7),
+    0 0 40px rgba(44, 140, 255, 0.3);
+  transition: text-shadow 0.4s ease;
+}
+
+#auth.error h1 {
+  text-shadow:
+    0 0 15px rgba(220, 38, 38, 0.8),
+    0 0 40px rgba(220, 38, 38, 0.4);
+}
+
+#auth p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.65rem;
+  letter-spacing: 2.5px;
+  margin-bottom: 0;
+  user-select: none;
+  text-transform: uppercase;
+  transition: opacity 0.3s ease;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 400;
+}
+
+#auth.error p {
+  opacity: 0;
+  height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.auth-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(44, 140, 255, 0.25), transparent);
+  margin: 2rem 0;
+}
+
+#auth.error .auth-divider {
+  background: linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.3), transparent);
+}
+
+#auth input {
+  width: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 500;
+  padding: 1.1rem 1.5rem;
+  border-radius: 2px;
+  border: 1px solid rgba(44, 140, 255, 0.25);
+  background: rgba(44, 140, 255, 0.03);
+  color: #fff;
+  text-align: center;
+  letter-spacing: 8px;
+  transition: all 0.3s ease;
+  outline: none;
+  user-select: text;
+  caret-color: var(--accent);
+}
+
+#auth input::placeholder {
+  color: rgba(44, 140, 255, 0.3);
+  letter-spacing: 3px;
+  font-size: 0.7rem;
+  font-weight: 400;
+}
+
+#auth input:focus {
+  border-color: rgba(44, 140, 255, 0.6);
+  background: rgba(44, 140, 255, 0.07);
+  box-shadow: 0 0 25px rgba(44, 140, 255, 0.12), inset 0 0 20px rgba(44, 140, 255, 0.04);
+}
+
+#auth.error input {
+  border-color: rgba(220, 38, 38, 0.4);
+  background: rgba(220, 38, 38, 0.04);
+}
+
+#auth.error input::placeholder {
+  color: rgba(220, 38, 38, 0.4);
+}
+
+#auth button {
+  margin-top: 1.25rem;
+  width: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 1rem 0;
+  border-radius: 2px;
+  border: 1px solid rgba(44, 140, 255, 0.35);
+  background: rgba(44, 140, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+#auth button::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(44, 140, 255, 0.12), transparent);
+  transition: left 0.6s ease;
+}
+
+#auth button:hover::before {
+  left: 100%;
+}
+
+#auth button:hover {
+  background: rgba(44, 140, 255, 0.15);
+  border-color: rgba(44, 140, 255, 0.65);
+  box-shadow: 0 0 30px rgba(44, 140, 255, 0.18);
+  color: #fff;
+}
+
+.auth-error-msg {
+  margin-top: 1.25rem;
+  font-size: 0.6rem;
+  letter-spacing: 2.5px;
+  color: rgba(220, 38, 38, 1);
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 600;
+}
+
+#auth.error .auth-error-msg {
+  opacity: 1;
+}
+
+.auth-footer {
+  position: absolute;
+  bottom: -2rem;
+  left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.55rem;
+  color: rgba(44, 140, 255, 0.7);
+  letter-spacing: 1.5px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 500;
+}
+
+#console {
+  filter: blur(10px);
+  transition: filter 0.7s ease;
+}
+
+#console.unlocked {
+  filter: none;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 6px;
+  box-shadow: inset 0 0 6px rgba(44, 140, 255, 0.6);
+}
+::-webkit-scrollbar-track { background: var(--panel); }
+  </style>
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+
+<script>
+  window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+</head>
+<body>
+  <main>
+  <div id="auth">
+    <div class="auth-box">
+      <div class="auth-classification">Clearance Required</div>
+      <h1 id="auth-title">FORTRAN AI</h1>
+      <p id="auth-subtitle">Console Access Portal</p>
+      <div class="auth-divider"></div>
+      <input type="password" id="password" placeholder="Enter Console Key" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+      <button onclick="authConsole()">Authenticate</button>
+      <div class="auth-error-msg" id="auth-error-msg">Access Denied — Invalid Credentials</div>
+      <div class="auth-footer">
+        <span>Cicada 3</span>
+        <span id="auth-time"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="console">
+    <header>Fortran AI Console</header>
+    <div class="main">
+      <nav class="sidebar">
+        <h3>Console</h3>
+        <div class="sidebar-nav">
+          <button class="active" onclick="switchTab('overview', this)">Overview</button>
+          <button onclick="switchTab('security', this)">Security Logs</button>
+          <button onclick="switchTab('chat', this)">Chat History</button>
+          <button onclick="switchTab('tokens', this)">Token Usage</button>
+          <button onclick="switchTab('model', this)">Model Status</button>
+          <button onclick="switchTab('ips', this)">IP Addresses</button>
+        </div>
+        <div class="sidebar-footer">
+          <div><span class="sf-dot"></span>System Active</div>
+        </div>
+      </nav>
+
+      <section class="tab-content active" id="overview">
+        <div class="card">
+          <h2>System Overview</h2>
+          <pre id="overviewInfo">Loading system status...</pre>
+          <pre id="systemTime">Loading time...</pre>
+        </div>
+      </section>
+
+      <section class="tab-content" id="security">
+        <div class="card">
+          <h2>Security Logs</h2>
+          <pre id="securityLogs"></pre>
+          <button class="clear-btn" onclick="clearLogs('securityLogs')">Clear Security Logs</button>
+        </div>
+      </section>
+
+      <section class="tab-content" id="chat">
+        <div class="card">
+          <h2>Recent Chats</h2>
+          <div class="chat-log" id="chatHistory"></div>
+          <button class="clear-btn" onclick="clearLogs('chatHistory')">Clear Chat History</button>
+        </div>
+      </section>
+
+      <section class="tab-content" id="tokens">
+        <div class="card">
+          <h2>Token Usage</h2>
+          <pre id="tokenStats"></pre>
+          <button class="clear-btn" onclick="clearLogs('tokenStats')">Clear Token Stats</button>
+        </div>
+      </section>
+
+      <section class="tab-content" id="model">
+        <div class="card">
+          <h2>Model Status</h2>
+          <pre id="modelStatus"></pre>
+        </div>
+      </section>
+
+      <section class="tab-content" id="ips">
+        <div class="card">
+          <h2>IP Addresses</h2>
+          <pre id="ipList"></pre>
+          <button class="clear-btn" onclick="clearLogs('ipList')">Clear IP Logs</button>
+        </div>
+      </section>
+    </div>
+  </div>
+  </main>
+
+  <script>
+    const authDiv   = document.getElementById("auth");
+    const title     = document.getElementById("auth-title");
+    const subtitle  = document.getElementById("auth-subtitle");
+    const inputField = document.getElementById("password");
+    const consoleWrap = document.getElementById("console");
+    const errorMsg  = document.getElementById("auth-error-msg");
+    const authTime  = document.getElementById("auth-time");
+
+    setInterval(() => {
+      if (authTime) authTime.textContent = new Date().toLocaleTimeString();
+    }, 1000);
+
+    async function checkSession() {
+      try {
+        const res  = await fetch("/api/session-check", { credentials: "include" });
+        const data = await res.json();
+        if (data.isAdmin) {
+          authDiv.style.display = "none";
+          consoleWrap.classList.add("unlocked");
+          initConsole();
+        }
+      } catch {}
+    }
+
+    async function authConsole() {
+      const input = inputField.value;
+      try {
+        const res  = await fetch('/api/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: input }),
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (data.success) {
+          authDiv.style.display = "none";
+          consoleWrap.classList.add("unlocked");
+          initConsole();
+        } else {
+          showError();
+        }
+      } catch {
+        showError(true);
+      }
+    }
+
+    function showError(isNetwork = false) {
+      authDiv.classList.add("error");
+      title.textContent = isNetwork ? "CONNECTION ERROR" : "ACCESS DENIED";
+      inputField.value = "";
+      inputField.focus();
+    }
+
+    inputField.addEventListener("keydown", e => {
+      if (e.key === "Enter") authConsole();
+    });
+
+    inputField.addEventListener("input", () => {
+      if (authDiv.classList.contains("error")) {
+        authDiv.classList.remove("error");
+        title.textContent = "FORTRAN AI";
+      }
+    });
+
+    window.addEventListener("pagehide", () => {
+      navigator.sendBeacon("/api/logout-beacon");
+    });
+
+    let currentTab = 'overview';
+    let lastData = {
+      tokenStats: '', securityLogs: '', chatHistory: '',
+      overviewInfo: '', modelStatus: '', ipList: ''
+    };
+
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      const activeTab = document.getElementById(tabId);
+      if (activeTab) activeTab.classList.add('active');
+      currentTab = tabId;
+      refreshCurrentTab();
+    }
+
+    async function loadOverview() {
+      try {
+        const res   = await fetch('/api/stats', { credentials: 'include' });
+        const stats = await res.json();
+        const formatted = `Uptime: ${stats.uptime}\nGlobal Tokens: ${stats.totalTokensUsed}\nModel: ${stats.model}\nStatus: ${stats.status}`;
+        if (formatted !== lastData['overviewInfo']) {
+          document.getElementById('overviewInfo').textContent = formatted;
+          lastData['overviewInfo'] = formatted;
+        }
+      } catch {}
+    }
+
+    async function loadTokenStats() {
+      try {
+        const res       = await fetch('/api/token-stats', { credentials: 'include' });
+        const tokenData = await res.json();
+        const formatted = tokenData.slice(-10).map(entry =>
+          `[${entry.role === 'user' ? 'User' : 'AI'}] ${entry.tokens} tokens (${new Date(entry.timestamp).toLocaleTimeString()})`
+        ).join('\n');
+        if (formatted !== lastData['tokenStats']) {
+          document.getElementById('tokenStats').textContent = formatted;
+          lastData['tokenStats'] = formatted;
+        }
+      } catch {}
+    }
+
+    async function loadSecurityLogs() {
+      try {
+        const res  = await fetch('/api/securityLogs', { credentials: 'include' });
+        const logs = await res.json();
+        const formatted = logs.slice(0, 10).map(log => `[${log.timestamp}] ${log.message}`).join('\n');
+        if (formatted !== lastData['securityLogs']) {
+          document.getElementById('securityLogs').textContent = formatted;
+          lastData['securityLogs'] = formatted;
+        }
+      } catch {}
+    }
+
+    async function loadChatHistory() {
+  try {
+    const res   = await fetch('/api/chatHistory', { credentials: 'include' });
+    const chats = await res.json();
+    const recent = chats.slice(-50);
+        const cacheKey = JSON.stringify(recent);
+        if (cacheKey === lastData['chatHistory']) return;
+        lastData['chatHistory'] = cacheKey;
+
+        const container = document.getElementById('chatHistory');
+        container.innerHTML = '';
+
+        for (const chat of recent) {
+          const entry = document.createElement('div');
+          const time  = new Date(chat.timestamp).toLocaleTimeString();
+          const role  = chat.role.toUpperCase();
+          const msg   = chat.message || '';
+
+          if (msg.startsWith('[Image request]')) {
+            entry.className = 'chat-entry';
+            entry.textContent = `[${time}] ${role}: ${msg}`;
+
+          } else if (msg.startsWith('[Image generated]')) {
+            const imgUrl = msg.replace('[Image generated] ', '').trim();
+
+            entry.className = 'chat-entry image-result';
+
+            const label = document.createElement('span');
+            label.textContent = `[${time}] ${role}: [Image generated]`;
+            entry.appendChild(label);
+
+            const img = document.createElement('img');
+            img.src = imgUrl;
+            img.alt = 'Generated image';
+            img.loading = 'lazy';
+            img.style.cssText = 'max-width:220px;border-radius:4px;border:1px solid rgba(44,140,255,0.25);display:block;margin-top:0.3rem;background:transparent;';
+            img.onerror = () => {
+              img.style.display = 'none';
+              const err = document.createElement('span');
+              err.style.cssText = 'font-size:0.75rem;color:rgba(220,38,38,0.7);display:block;margin-top:0.2rem;';
+              err.textContent = '[Image unavailable]';
+              entry.appendChild(err);
+            };
+
+            entry.appendChild(img);
+
+          } else {
+            entry.className = 'chat-entry';
+            entry.textContent = `[${time}] ${role}: ${msg}`;
+          }
+
+          container.appendChild(entry);
+        }
+
+      } catch {}
+    }
+
+    async function loadModelStatus() {
+      try {
+        const res   = await fetch('/api/modelStatus', { credentials: 'include' });
+        const model = await res.json();
+        const formatted = `Model: ${model.name}\nTemperature: ${model.temperature}\nStatus: ${model.status}`;
+        if (formatted !== lastData['modelStatus']) {
+          document.getElementById('modelStatus').textContent = formatted;
+          lastData['modelStatus'] = formatted;
+        }
+      } catch {}
+    }
+
+    async function loadIPList() {
+      try {
+        const res  = await fetch('/api/ips', { credentials: 'include' });
+        const data = await res.json();
+        const ips  = data.uniqueIPs || [];
+        const formatted = ips.length
+          ? ips.map(({ ip, location }) => `${ip} — ${location}`).join('\n')
+          : '';
+        if (formatted !== lastData['ipList']) {
+          document.getElementById('ipList').textContent = formatted;
+          lastData['ipList'] = formatted;
+        }
+      } catch {}
+    }
+
+    function clearLogs(elementId) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+
+      if (elementId === 'chatHistory') {
+        el.innerHTML = '<div class="chat-entry">[Cleared]</div>';
+      } else {
+        el.textContent = '[Cleared]';
+      }
+
+      const endpoints = {
+        securityLogs: ['/api/securityLogs/clear', loadSecurityLogs],
+        chatHistory:  ['/api/chatHistory/clear',  loadChatHistory],
+        tokenStats:   ['/api/token-stats/clear',  loadTokenStats],
+        ipList:       ['/api/ips/clear',           loadIPList]
+      };
+
+      const entry = endpoints[elementId];
+      if (!entry) return;
+
+      fetch(entry[0], { method: 'POST', credentials: 'include' })
+        .then(() => setTimeout(entry[1], 700))
+        .catch(() => {
+          if (elementId === 'chatHistory') {
+            el.innerHTML = '<div class="chat-entry">[Failed to clear logs]</div>';
+          } else {
+            el.textContent = '[Failed to clear logs]';
+          }
+        });
+    }
+
+    async function initConsole() {
+      await Promise.all([
+        loadOverview(), loadTokenStats(), loadSecurityLogs(),
+        loadChatHistory(), loadModelStatus(), loadIPList()
+      ]);
+    }
+
+    async function refreshCurrentTab() {
+      switch (currentTab) {
+        case 'overview':  return loadOverview();
+        case 'tokens':    return loadTokenStats();
+        case 'security':  return loadSecurityLogs();
+        case 'chat':      return loadChatHistory();
+        case 'model':     return loadModelStatus();
+        case 'ips':       return loadIPList();
+      }
+    }
+
+    setInterval(() => {
+      const time   = new Date().toLocaleTimeString();
+      const timeEl = document.getElementById('systemTime');
+      if (timeEl) timeEl.textContent = `Current Time: ${time}`;
+    }, 1000);
+
+    setInterval(() => refreshCurrentTab(), 1000);
+
+    checkSession();
+  </script>
+</body>
+</html>

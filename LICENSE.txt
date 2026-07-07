@@ -1,0 +1,65 @@
+# Fortran AI Software License
+
+© 2026 Kn3ghtfall  
+All Rights Reserved.
+
+---
+
+## 1. Grant of License
+
+Subject to compliance with this License, Kn3ghtfall grants you a limited, non-exclusive, non-transferable, and non-sublicensable license to access and use the Fortran AI software solely for personal, non-commercial purposes.
+
+This license does not grant you any rights to:
+- Modify, adapt, or create derivative works of the software
+- Incorporate the software into any product, service, or system
+- Distribute, sublicense, lease, sell, or otherwise make the software available to third parties
+- Use the software for training, fine-tuning, or developing machine learning models
+- Reverse engineer, decompile, or attempt to extract source code or underlying components
+
+---
+
+## 2. Restrictions
+
+You agree not to:
+- Copy, reproduce, publish, distribute, or commercially exploit the software in any form
+- Remove, alter, or obscure any copyright or proprietary notices
+- Use the software in commercial, institutional, governmental, military, or surveillance systems without prior written consent
+- Attempt to bypass, disable, or interfere with any security or access control mechanisms
+
+---
+
+## 3. Ownership and Intellectual Property
+
+All rights, title, and interest in and to Fortran AI, including all source code, architecture, design, and associated materials, remain the exclusive property of Kn3ghtfall.
+
+No ownership rights are transferred to the user under this License.
+
+---
+
+## 4. Termination
+
+This License is effective until terminated.
+
+Any violation of its terms will result in immediate and automatic termination of your rights under this License.
+
+Upon termination, you must cease all use of the software and destroy any copies in your possession or control.
+
+---
+
+## 5. Disclaimer of Warranty
+
+The software is provided on an “as is” and “as available” basis, without warranties of any kind, express or implied, including but not limited to fitness for a particular purpose, merchantability, or non-infringement.
+
+Kn3ghtfall shall not be liable for any damages, losses, or consequences arising from the use or inability to use the software.
+
+---
+
+## 6. Governing Law
+
+This License shall be governed by and construed in accordance with applicable laws in the jurisdiction of the author, without regard to conflict of law principles.
+
+---
+
+## 7. Contact
+
+For permissions, licensing inquiries, or legal requests, contact Kn3ghtfall via official communication channels.
